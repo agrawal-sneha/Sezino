@@ -44,9 +44,9 @@ app.get('/', (req, res) => {
 });
 
 // Events
-app.get('/api/events', (req, res) => {
+app.get('/api/events', async (req, res) => {
   try {
-    const events = Events.findAll();
+    const events = await Events.findAll();
     res.json(events);
   } catch (error) {
     console.error(error);
@@ -54,9 +54,9 @@ app.get('/api/events', (req, res) => {
   }
 });
 
-app.get('/api/events/:id', (req, res) => {
+app.get('/api/events/:id', async (req, res) => {
   try {
-    const event = Events.findById(parseInt(req.params.id));
+    const event = await Events.findById(parseInt(req.params.id));
     if (event) {
       res.json(event);
     } else {
@@ -68,7 +68,7 @@ app.get('/api/events/:id', (req, res) => {
   }
 });
 
-app.post('/api/events', requireAuth, (req, res) => {
+app.post('/api/events', requireAuth, async (req, res) => {
   try {
     const { title, date, fullDate, time, location, address, hostName, description, image, tags, price } = req.body;
     // Validation
@@ -77,7 +77,7 @@ app.post('/api/events', requireAuth, (req, res) => {
     }
     const tagArray = Array.isArray(tags) ? tags : [];
     const newEvent = { title, date, fullDate, time, location, address, hostName, description, image, tags: tagArray, price, userId: req.user.id };
-    const result = Events.create(newEvent);
+    const result = await Events.create(newEvent);
     res.status(201).json({ id: result.id, ...newEvent });
   } catch (error) {
     console.error(error);
@@ -86,10 +86,10 @@ app.post('/api/events', requireAuth, (req, res) => {
 });
 
 // Update event
-app.put('/api/events/:id', requireAuth, (req, res) => {
+app.put('/api/events/:id', requireAuth, async (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
-    const event = Events.findById(eventId);
+    const event = await Events.findById(eventId);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
@@ -103,7 +103,7 @@ app.put('/api/events/:id', requireAuth, (req, res) => {
     }
     const tagArray = Array.isArray(tags) ? tags : [];
     const updatedEvent = { title, date, fullDate, time, location, address, hostName, description, image, tags: tagArray, price };
-    Events.update(eventId, updatedEvent);
+    await Events.update(eventId, updatedEvent);
     res.json({ id: eventId, ...updatedEvent });
   } catch (error) {
     console.error(error);
@@ -112,17 +112,17 @@ app.put('/api/events/:id', requireAuth, (req, res) => {
 });
 
 // Delete event
-app.delete('/api/events/:id', requireAuth, (req, res) => {
+app.delete('/api/events/:id', requireAuth, async (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
-    const event = Events.findById(eventId);
+    const event = await Events.findById(eventId);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
     if (event.userId !== req.user.id) {
       return res.status(403).json({ error: 'Not authorized to delete this event' });
     }
-    Events.delete(eventId);
+    await Events.delete(eventId);
     res.status(204).send();
   } catch (error) {
     console.error(error);
@@ -131,9 +131,9 @@ app.delete('/api/events/:id', requireAuth, (req, res) => {
 });
 
 // Spaces
-app.get('/api/spaces', (req, res) => {
+app.get('/api/spaces', async (req, res) => {
   try {
-    const spaces = Spaces.findAll();
+    const spaces = await Spaces.findAll();
     res.json(spaces);
   } catch (error) {
     console.error(error);
@@ -141,9 +141,9 @@ app.get('/api/spaces', (req, res) => {
   }
 });
 
-app.get('/api/spaces/:id', (req, res) => {
+app.get('/api/spaces/:id', async (req, res) => {
   try {
-    const space = Spaces.findById(req.params.id);
+    const space = await Spaces.findById(req.params.id);
     if (space) {
       res.json(space);
     } else {
@@ -156,13 +156,13 @@ app.get('/api/spaces/:id', (req, res) => {
 });
 
 // Waitlist
-app.post('/api/waitlist', (req, res) => {
+app.post('/api/waitlist', async (req, res) => {
   try {
     const { email } = req.body;
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
       return res.status(400).json({ error: 'Invalid email' });
     }
-    Waitlist.add(email);
+    await Waitlist.add(email);
     res.status(201).json({ success: true, message: 'Added to waitlist' });
   } catch (error) {
     if (error.message.includes('already on waitlist')) {
@@ -174,10 +174,10 @@ app.post('/api/waitlist', (req, res) => {
 });
 
 // Analytics tracking
-app.post('/api/analytics/pageview', (req, res) => {
+app.post('/api/analytics/pageview', async (req, res) => {
   try {
     const { path, userAgent, referrer, ip } = req.body;
-    PageViews.add({ path, userAgent, referrer, ip });
+    await PageViews.add({ path, userAgent, referrer, ip });
     res.status(201).json({ success: true });
   } catch (error) {
     console.error(error);
@@ -185,9 +185,9 @@ app.post('/api/analytics/pageview', (req, res) => {
   }
 });
 
-app.get('/api/analytics/stats', (req, res) => {
+app.get('/api/analytics/stats', async (req, res) => {
   try {
-    const stats = PageViews.getStats();
+    const stats = await PageViews.getStats();
     res.json(stats);
   } catch (error) {
     console.error(error);
@@ -203,7 +203,7 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ error: 'Email and password required' });
     }
     // Check if user exists
-    const existing = Users.findByEmail(email);
+    const existing = await Users.findByEmail(email);
     if (existing) {
       return res.status(409).json({ error: 'User already exists' });
     }
@@ -222,7 +222,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password required' });
     }
-    const user = Users.findByEmail(email);
+    const user = await Users.findByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -238,9 +238,9 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-app.get('/api/auth/me', requireAuth, (req, res) => {
+app.get('/api/auth/me', requireAuth, async (req, res) => {
   try {
-    const user = Users.findById(req.user.id);
+    const user = await Users.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -384,9 +384,9 @@ app.get('/api/auth/apple/mock', async (req, res) => {
 });
 
 // User events
-app.get('/api/users/me/events', requireAuth, (req, res) => {
+app.get('/api/users/me/events', requireAuth, async (req, res) => {
   try {
-    const events = Events.findByUserId(req.user.id);
+    const events = await Events.findByUserId(req.user.id);
     res.json(events);
   } catch (error) {
     console.error(error);
@@ -395,12 +395,12 @@ app.get('/api/users/me/events', requireAuth, (req, res) => {
 });
 
 // Update user profile
-app.put('/api/users/me', requireAuth, (req, res) => {
+app.put('/api/users/me', requireAuth, async (req, res) => {
   try {
     const { name, avatar } = req.body;
-    Users.update(req.user.id, { name, avatar });
+    await Users.update(req.user.id, { name, avatar });
     // Fetch updated user
-    const user = Users.findById(req.user.id);
+    const user = await Users.findById(req.user.id);
     res.json({ user: { id: user.id, email: user.email, name: user.name, avatar: user.avatar } });
   } catch (error) {
     console.error(error);

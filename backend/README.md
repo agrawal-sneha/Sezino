@@ -1,33 +1,92 @@
 # Sezino Backend
 
-Node.js/Express backend for Sezino event platform.
+Node.js/Express backend for Sezino event platform with PostgreSQL and Prisma ORM.
 
 ## Features
 
 - REST API for events, spaces, waitlist, and analytics
-- SQLite database with better-sqlite3
+- PostgreSQL database with Prisma ORM
+- JWT authentication with email/password, Google OAuth, and Apple Sign In
 - CORS enabled
 - Seed data for events and spaces
+- Docker Compose for local PostgreSQL
 
 ## Setup
 
-1. Navigate to backend directory:
-   ```bash
-   cd sezino/backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Seed the database with sample events and spaces:
-   ```bash
-   npm run seed
-   ```
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   Server runs on http://localhost:5000
+### Prerequisites
+- Node.js 18+
+- Docker & Docker Compose (for local PostgreSQL) **OR** a cloud PostgreSQL database (Neon, Supabase, etc.)
+
+### 1. Navigate to backend directory:
+```bash
+cd sezino/backend
+```
+
+### 2. Install dependencies:
+```bash
+npm install
+```
+
+### 3. Set up PostgreSQL database:
+
+#### Option A: Local PostgreSQL with Docker (recommended for development)
+```bash
+npm run db:up            # Starts PostgreSQL container
+npm run db:push          # Creates database tables
+npm run seed             # Seeds sample data
+```
+
+#### Option B: Cloud PostgreSQL
+1. Create a PostgreSQL database on [Neon](https://neon.tech), [Supabase](https://supabase.com), or similar.
+2. Copy the connection string (looks like `postgresql://user:password@host/dbname?sslmode=require`)
+3. Update `DATABASE_URL` in `.env` file with your connection string.
+4. Run migrations and seed:
+```bash
+npm run db:push
+npm run seed
+```
+
+### 4. Start the development server:
+```bash
+npm run dev
+```
+Server runs on http://localhost:5000
+
+## Environment Variables
+
+Create a `.env` file in the backend directory (see `.env.example` if available):
+
+```env
+# Database (PostgreSQL)
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/sezino?sslmode=disable"
+
+# Server
+PORT=5000
+JWT_SECRET="your-jwt-secret-key-change-in-production"
+
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+GOOGLE_REDIRECT_URI="http://localhost:5000/api/auth/google/callback"
+
+# Apple Sign In (optional)
+APPLE_CLIENT_ID=""
+APPLE_TEAM_ID=""
+APPLE_KEY_ID=""
+APPLE_PRIVATE_KEY=""
+APPLE_REDIRECT_URI="http://localhost:5000/api/auth/apple/callback"
+```
+
+## Available Scripts
+
+- `npm start` – start production server
+- `npm run dev` – start development server with nodemon
+- `npm run seed` – seed database with sample events and spaces
+- `npm run db:up` – start PostgreSQL container (Docker)
+- `npm run db:down` – stop PostgreSQL container
+- `npm run db:push` – push Prisma schema to database (create tables)
+- `npm run db:studio` – open Prisma Studio (database GUI)
+- `npm run db:reset` – reset database (delete volumes, recreate, seed)
 
 ## API Endpoints
 
@@ -61,55 +120,24 @@ Node.js/Express backend for Sezino event platform.
 - `GET /api/users/me/events` – get user's created events
 - `PUT /api/users/me` – update user profile
 
-## Connecting Frontend
+## Database Schema
 
-The frontend (React/Vite) currently uses local mock data. To connect to the backend:
+The database schema is defined in `prisma/schema.prisma` and includes:
 
-1. Update `src/data/events.js` and `src/data/spaces.js` to fetch from backend API instead of exporting hardcoded arrays.
-
-2. Create a service module (e.g., `src/services/api.js`):
-
-   ```javascript
-   const API_BASE = 'http://localhost:5000/api';
-
-   export async function fetchEvents() {
-     const res = await fetch(`${API_BASE}/events`);
-     return await res.json();
-   }
-
-   export async function fetchSpaces() {
-     const res = await fetch(`${API_BASE}/spaces`);
-     return await res.json();
-   }
-
-   export async function addToWaitlist(email) {
-     const res = await fetch(`${API_BASE}/waitlist`, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ email })
-     });
-     return await res.json();
-   }
-   ```
-
-3. Replace imports in components:
-
-   - In `Home.jsx`, replace `import { events } from '../data/events'` with `import { fetchEvents } from '../services/api'` and call inside `useEffect`.
-   - Similarly for spaces.
-
-4. Update the embedding service to run on server side (optional).
+- **User** – users with email/password or OAuth providers
+- **Event** – events with title, date, location, etc.
+- **Space** – event spaces/categories
+- **Waitlist** – email waitlist submissions
+- **PageView** – analytics page views
 
 ## Authentication
 
-JWT-based authentication is implemented with the following endpoints:
-
-- `POST /api/auth/register` – register new user (email/password)
-- `POST /api/auth/login` – login with email/password  
-- `GET /api/auth/me` – get current user (requires Bearer token)
-- `PUT /api/users/me` – update user profile (name, avatar)
+### JWT Authentication
+- Register: `POST /api/auth/register`
+- Login: `POST /api/auth/login`
+- Include `Authorization: Bearer <token>` header for protected routes
 
 ### OAuth Authentication
-
 Google OAuth and Apple Sign In are supported via mock endpoints for development. To enable real OAuth:
 
 #### Google OAuth Setup
@@ -143,11 +171,21 @@ When OAuth credentials are not set, mock endpoints are available:
 
 These return valid JWT tokens for testing.
 
-## Database Schema
+## Connecting Frontend
 
-See `db.js` for table definitions. The SQLite database file is `database.sqlite`.
+The frontend (React/Vite) is already configured to use the backend API. Ensure the backend is running on port 5000.
 
-## Development
+## Deployment
 
-- Use `npm run dev` for development with nodemon.
-- Use `npm start` for production.
+### Backend Deployment
+1. Set up a PostgreSQL database (cloud provider recommended)
+2. Configure environment variables (DATABASE_URL, JWT_SECRET, etc.)
+3. Deploy to your preferred platform (Railway, Render, Vercel, etc.)
+
+### Frontend Deployment
+1. Update `src/services/api.js` to point to your deployed backend URL
+2. Deploy to Vercel, Netlify, etc.
+
+## License
+
+MIT

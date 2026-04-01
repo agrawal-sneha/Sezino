@@ -7,22 +7,22 @@ const spacesData = JSON.parse(fs.readFileSync(path.join(__dirname, 'seed-data', 
 
 async function seed() {
   console.log('Checking existing data...');
-  const existingEvents = Events.findAll();
+  const existingEvents = await Events.findAll();
   if (existingEvents.length === 0) {
     console.log('Seeding events...');
     for (const event of eventsData) {
-      Events.create(event);
+      await Events.create(event);
     }
     console.log(`Added ${eventsData.length} events`);
   } else {
     console.log(`Events already exist (${existingEvents.length} records)`);
   }
 
-  const existingSpaces = Spaces.findAll();
+  const existingSpaces = await Spaces.findAll();
   if (existingSpaces.length === 0) {
     console.log('Seeding spaces...');
     for (const space of spacesData) {
-      Spaces.create(space);
+      await Spaces.create(space);
     }
     console.log(`Added ${spacesData.length} spaces`);
   } else {
@@ -32,4 +32,7 @@ async function seed() {
   console.log('Seeding completed!');
 }
 
-seed();
+seed().catch(error => {
+  console.error('Seeding error:', error);
+  process.exit(1);
+});
