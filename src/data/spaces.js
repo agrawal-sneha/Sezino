@@ -1,0 +1,90 @@
+/**
+ * Space categories for Sezino event matching.
+ */
+
+export const spaces = [
+    {
+        id: 'crypto',
+        name: 'Crypto',
+        icon: '🔗',
+        gradient: 'linear-gradient(135deg, #7c3aed, #a855f7, #c084fc)',
+        color: '#a855f7',
+        description: 'Blockchain, DeFi, and Web3 events.',
+        keywords: [
+            'blockchain', 'bitcoin', 'ethereum', 'solana', 'defi', 'nft',
+            'web3', 'dao', 'token', 'crypto', 'cryptocurrency', 'mining',
+            'wallet', 'smart contract', 'layer2', 'staking', 'yield',
+            'decentralized', 'protocol', 'airdrop', 'metaverse', 'trading',
+            'dapp', 'ledger', 'consensus', 'polygon', 'avalanche', 'cosmos',
+        ],
+    },
+    {
+        id: 'tech',
+        name: 'Tech',
+        icon: '💻',
+        gradient: 'linear-gradient(135deg, #2563eb, #3b82f6, #60a5fa)',
+        color: '#3b82f6',
+        description: 'Software, startups, and developer events.',
+        keywords: [
+            'software', 'developer', 'programming', 'startup', 'hackathon',
+            'saas', 'cloud', 'devops', 'engineering', 'code', 'api',
+            'mobile', 'fullstack', 'frontend', 'backend', 'database',
+            'microservices', 'agile', 'scrum', 'product', 'launch',
+            'technology', 'innovation', 'pitch', 'venture', 'demo day',
+            'open source', 'react', 'python', 'javascript', 'typescript',
+        ],
+    },
+    {
+        id: 'ai',
+        name: 'AI',
+        icon: '🤖',
+        gradient: 'linear-gradient(135deg, #059669, #10b981, #34d399)',
+        color: '#10b981',
+        description: 'Artificial intelligence and machine learning events.',
+        keywords: [
+            'artificial intelligence', 'machine learning', 'deep learning',
+            'neural network', 'llm', 'gpt', 'transformer', 'nlp',
+            'computer vision', 'generative', 'diffusion', 'prompt',
+            'chatbot', 'autonomous', 'robotics', 'data science',
+            'reinforcement learning', 'embedding', 'fine tuning',
+            'model training', 'inference', 'ai agents', 'rag',
+            'langchain', 'deepseek', 'openai', 'hugging face', 'pytorch',
+        ],
+    },
+    {
+        id: 'food-beverage',
+        name: 'Food & Beverage',
+        icon: '🍷',
+        gradient: 'linear-gradient(135deg, #ea580c, #f97316, #fb923c)',
+        color: '#f97316',
+        description: 'Culinary experiences, tastings, and foodie events.',
+        keywords: [
+            'culinary', 'cooking', 'chef', 'restaurant', 'tasting',
+            'wine', 'cocktail', 'brunch', 'dinner', 'food', 'beverage',
+            'mixology', 'sommelier', 'farm to table', 'organic',
+            'gastronomy', 'baking', 'supper club', 'pop up', 'food truck',
+            'craft beer', 'spirits', 'coffee', 'tea ceremony', 'vegan',
+            'cuisine', 'recipe', 'gourmet', 'pairing', 'fermentation',
+        ],
+    },
+    {
+        id: 'wellness-beauty',
+        name: 'Wellness & Beauty',
+        icon: '✨',
+        gradient: 'linear-gradient(135deg, #db2777, #ec4899, #f472b6)',
+        color: '#ec4899',
+        description: 'Health, fitness, self-care, and beauty events.',
+        keywords: [
+            'yoga', 'meditation', 'mindfulness', 'wellness', 'fitness',
+            'skincare', 'beauty', 'spa', 'retreat', 'holistic',
+            'pilates', 'breathwork', 'nutrition', 'self care', 'healing',
+            'aromatherapy', 'massage', 'facial', 'detox', 'workout',
+            'mental health', 'therapy', 'coaching', 'journaling',
+            'sound bath', 'reiki', 'acupuncture', 'makeup', 'cosmetics',
+        ],
+    },
+];
+
+export function getSpaceById(id) {
+    return spaces.find((s) => s.id === id);
+}
