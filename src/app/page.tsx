@@ -12,7 +12,7 @@ export default async function LandingPage() {
     <main className="min-h-screen flex flex-col">
       <header className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
         <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          sezino
+          Sezino
         </span>
         <Button variant="ghost" size="sm" asChild>
           <Link href="/auth/signin">Sign in</Link>
