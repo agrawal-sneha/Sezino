@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
+    --card: 240 8% 8%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+    --border: 240 4% 16%;
+    --accent: 280 80% 60%;
+    --accent-foreground: 0 0% 100%;
+    --primary: 320 90% 60%;
+    --primary-foreground: 0 0% 100%;
+  }
+
+  html, body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 0%, hsl(280 60% 25% / 0.35), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, hsl(320 60% 25% / 0.35), transparent 60%),
+      hsl(var(--background));
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}

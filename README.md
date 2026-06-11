@@ -1,125 +1,38 @@
-# Sezino Event Platform
+# Sezino
 
-A full-stack event discovery platform built with React (frontend) and Node.js/Express with PostgreSQL (backend). Features user authentication, event management, spaces categorization, waitlist, and analytics.
+Tinder-style aggregator for Luma, Eventbrite, and Meetup events. Sign in with your email, swipe through what's on this week, RSVP through the source platform with one tap.
 
-## Tech Stack
+## Stack
 
-### Frontend
-- React 18 with Vite
-- CSS modules for styling
-- Responsive design
+- Next.js 14 (App Router) + TypeScript
+- Prisma + SQLite (swap to Postgres via `DATABASE_URL`)
+- NextAuth (email magic link — console transport in dev, Resend in prod)
+- Tailwind + framer-motion for the swipe deck
+- Source adapter pattern in `src/lib/sources/` — Luma calls the real public API; Eventbrite + Meetup are stubs (see notes below)
 
-### Backend
-- Node.js with Express
-- PostgreSQL database with Prisma ORM
-- JWT authentication (email/password, Google OAuth, Apple Sign In)
-- REST API
+## Run it
 
-## Features
-
-- **Event Discovery**: Browse events with filtering by spaces/categories
-- **Authentication**: Email/password, Google OAuth, Apple Sign In
-- **User Dashboard**: Create, update, delete your events
-- **Spaces**: Different event categories (Music, Art, Food, etc.)
-- **Waitlist**: Join waitlist for upcoming features
-- **Analytics**: Track page views and popular paths
-- **Responsive Design**: Mobile-first approach
-
-## Project Structure
-
-```
-sezino/
-├── backend/           # Node.js/Express backend with PostgreSQL
-│   ├── prisma/       # Prisma schema and migrations
-│   ├── seed-data/    # Sample events and spaces data
-│   └── index.js      # Main server file
-├── src/              # React frontend
-│   ├── components/   # Reusable UI components
-│   ├── pages/        # Page components (Home, Events, etc.)
-│   ├── services/     # API service functions
-│   └── styles/       # CSS styles
-└── public/           # Static assets
-```
-
-## Quick Start
-
-### Prerequisites
-- Node.js 18+
-- Docker & Docker Compose (for local PostgreSQL) **OR** a cloud PostgreSQL database
-
-### 1. Clone and install
 ```bash
-git clone https://github.com/agrawal-sneha/Sezino.git
-cd Sezino
 npm install
-cd backend
-npm install
-```
-
-### 2. Set up PostgreSQL database
-
-#### Option A: Local PostgreSQL with Docker (recommended for development)
-```bash
-cd backend
-npm run db:up            # Starts PostgreSQL container
-npm run db:push          # Creates database tables
-npm run seed             # Seeds sample data
-```
-
-#### Option B: Cloud PostgreSQL
-1. Create a PostgreSQL database on [Neon](https://neon.tech), [Supabase](https://supabase.com), or similar.
-2. Copy the connection string
-3. Update `DATABASE_URL` in `backend/.env` with your connection string.
-4. Run migrations and seed:
-```bash
-cd backend
-npm run db:push
-npm run seed
-```
-
-### 3. Start the backend server
-```bash
-cd backend
+npm run db:push     # creates SQLite schema
+npm run db:seed     # pulls live Luma events + loads fixtures
 npm run dev
 ```
-Backend runs on http://localhost:5000
 
-### 4. Start the frontend development server
-```bash
-cd ..
-npm run dev
-```
-Frontend runs on http://localhost:5173
+Open http://localhost:3000, click **Sign in**, drop in any email — the magic link is printed in your terminal.
 
-## Environment Variables
+## Source ingestion notes
 
-### Backend (`backend/.env`)
-See `backend/.env.example` for reference:
-```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/sezino?sslmode=disable"
-JWT_SECRET="your-jwt-secret-key-change-in-production"
-PORT=5000
-# OAuth variables (optional)
-```
+- **Luma**: `src/lib/sources/luma.ts` calls `https://api.lu.ma/discover/get-paginated-events`. Unofficial endpoint — best-effort. If it 4xx/5xx's, the seed script falls back to fixtures.
+- **Eventbrite**: stub. Their general `/v3/events/search/` API was deprecated in 2020. Real ingestion requires either an organizer-side OAuth (your own events) or scraping JSON-LD from their public event pages — both deferred.
+- **Meetup**: stub. Their unrestricted GraphQL API requires a paid Meetup Pro account (~$200/mo). Wire up once we have credentials.
 
-### Frontend
-Frontend API base URL is configured in `src/services/api.js` (default: `http://localhost:5000/api`)
+To replace a stub: implement `SourceAdapter` from `src/lib/sources/types.ts` and add it to `prisma/seed.ts`.
 
-## API Documentation
+## What's next
 
-See `backend/README.md` for detailed API endpoints.
-
-## Deployment
-
-### Backend Deployment
-1. Set up a PostgreSQL database (cloud provider recommended)
-2. Configure environment variables (DATABASE_URL, JWT_SECRET, etc.)
-3. Deploy to your preferred platform (Railway, Render, Vercel, etc.)
-
-### Frontend Deployment
-1. Update `src/services/api.js` to point to your deployed backend URL
-2. Deploy to Vercel, Netlify, etc.
-
-## License
-
-MIT
+- **Real Eventbrite + Meetup ingestion** (see notes above)
+- **Notifications**: email + push when a saved event is starting soon, or when a host approves the RSVP
+- **Taste model**: rank the discover feed using past swipes (right now it's just `startAt ASC`)
+- **City filter**: nav-level city picker; ingestion already captures `city` per event
+- **Deep RSVP**: for sources that allow it, do the RSVP through Sezino instead of deep-linking out (this is where the "better access" business angle would live — partnerships first, code second)
